@@ -45,7 +45,7 @@ public class Pickup : MonoBehaviour
         transform.position = m_StartPosition + Vector3.up * bobbingAnimationPhase;
 
         // Handle rotating
-        transform.Rotate(Vector3.up, rotatingSpeed * Time.deltaTime, Space.Self);
+        //transform.Rotate(Vector3.up, rotatingSpeed * Time.deltaTime, Space.Self);
     }
 
     private void OnTriggerEnter(Collider other)

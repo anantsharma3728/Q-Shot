@@ -48,7 +48,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _Shininess: 0.030000003
+    - _Shininess: 0.03
     - _SnowAmount: 0.16071428
     - _SnowDepth: 0
     - _WaterAmount: 1

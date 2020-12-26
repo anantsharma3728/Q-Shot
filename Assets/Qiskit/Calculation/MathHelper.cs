@@ -12,11 +12,9 @@
 // copyright notice, and modified files need to carry a notice indicating
 // that they have been altered from the originals.using System;
 
-namespace Qiskit
-{
+namespace Qiskit {
     //Simple Helper functions for math.
-    public static class MathHelper
-    {
+    public static class MathHelper {
         //Constants (potential) used
         public const double Pi = 3.1415926535897932384626433832795;
         public const double PiHalf = 1.5707963267948966192313216916398;
@@ -25,19 +23,27 @@ namespace Qiskit
         public const double Eps = 0.0000001;
 
 
+        public const float PiFloat = 3.1415926535897932384626433832795f;
+        public const float PiHalfFloat = 1.5707963267948966192313216916398f;
+        public const float PiQuarterFloat = 0.78539816339744830961566084581988f;
+        public const float Norm2Float = 0.70710678118654752440084436210485f;
+        //Eps needs to be bigger since there is a bigger error with floats
+        public const float EpsFloat = 0.0001f;
+
+
         /// <summary>
         /// Fast Integer potency. Only works with positive numbers Returns baseValue to the power of powerValue
         /// </summary>
         /// <param name="baseValue"> The base </param>
         /// <param name="powerValue">The exponent </param>
         /// <returns></returns>
-        public static int IntegerPower(int baseValue, int powerValue)
-        {
+        public static int IntegerPower(int baseValue, int powerValue) {
+            if (powerValue<=0) {
+                return 0;
+            }
             int returnValue = 1;
-            while (powerValue != 0)
-            {
-                if ((powerValue & 1) == 1)
-                {
+            while (powerValue != 0) {
+                if ((powerValue & 1) == 1) {
                     returnValue *= baseValue;
                 }
                 baseValue *= baseValue;

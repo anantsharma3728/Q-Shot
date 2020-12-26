@@ -11,34 +11,29 @@
 //
 // Any modifications or derivative works of this code must retain this
 // copyright notice, and modified files need to carry a notice indicating
-// that they have been altered from the originals.using System;
+// that they have been altered from the originals.
 
 using System;
 
-namespace Qiskit
-{
+namespace Qiskit {
     /// <summary>
     /// Class to simulate a Quantum Circuit directly in C# same way as MicroQiskit does
     /// Uses basic constructor is not static in order to easy change simulators (Inheriting from SimulatorBase)
     /// </summary>
-    public class MicroQiskitSimulator : SimulatorBase
-    {
+    public class MicroQiskitSimulator : SimulatorBase {
         /// <summary>
         /// Calculate the amplitude for a given circuit by simulating it directly in C#
         /// </summary>
         /// <param name="circuit">The quantum circuit which will be simulated</param>
         /// <returns></returns>
-        public override ComplexNumber[] Simulate(QuantumCircuit circuit)
-        {
+        public override ComplexNumber[] Simulate(QuantumCircuit circuit) {
             ComplexNumber[] amplitudes = base.Simulate(circuit);
 
 
-            for (int i = 0; i < circuit.Gates.Count; i++)
-            {
+            for (int i = 0; i < circuit.Gates.Count; i++) {
                 Gate gate = circuit.Gates[i];
 
-                switch (gate.CircuitType)
-                {
+                switch (gate.CircuitType) {
                     case CircuitType.X:
                         handleX(amplitudes, gate, circuit.NumberOfQubits);
                         break;
@@ -68,17 +63,14 @@ namespace Qiskit
         }
 
 
-        public override void SilumateInPlace(QuantumCircuit circuit, ref ComplexNumber[] amplitudes)
-        {
+        public override void SilumateInPlace(QuantumCircuit circuit, ref ComplexNumber[] amplitudes) {
             //Check Length
             base.SilumateInPlace(circuit, ref amplitudes);
 
-            for (int i = 0; i < circuit.Gates.Count; i++)
-            {
+            for (int i = 0; i < circuit.Gates.Count; i++) {
                 Gate gate = circuit.Gates[i];
 
-                switch (gate.CircuitType)
-                {
+                switch (gate.CircuitType) {
                     case CircuitType.X:
                         handleX(amplitudes, gate, circuit.NumberOfQubits);
                         break;
@@ -110,8 +102,9 @@ namespace Qiskit
         /// </summary>
         /// <param name="circuit">The quantum circuit which will be simulated.</param>
         /// <returns></returns>
-        public override double[] GetProbabilities(QuantumCircuit circuit)
-        {
+        public override double[] GetProbabilities(QuantumCircuit circuit) {
+            //TODO Optimization re/abuse amplitude for probabilities?
+
             ComplexNumber[] amplitudes = Simulate(circuit);
             return base.GetProbabilities(amplitudes);
         }
@@ -124,52 +117,50 @@ namespace Qiskit
         /// <param name="probabilities">The probability array which will be filled.</param>
         /// <param name="amplitudes">The amplitude array needed for calculating the probabilities.</param>
         /// <returns></returns>
-        public void CalculateProbabilities(QuantumCircuit circuit, ref double[] probabilities, ref ComplexNumber[] amplitudes)
-        {
+        public void CalculateProbabilities(QuantumCircuit circuit, ref double[] probabilities, ref ComplexNumber[] amplitudes) {
             //Trying to optimize not needing to return arrays
             SilumateInPlace(circuit, ref amplitudes);
             base.CalculateProbabilities(amplitudes, ref probabilities);
         }
 
 
-        void handleX(ComplexNumber[] amplitudes, Gate gate, int numberOfQubits)
-        {
+        void handleX(ComplexNumber[] amplitudes, Gate gate, int numberOfQubits) {
             int first = gate.First;
             int firstPow = MathHelper.IntegerPower(2, first);
             int firstPlusPow = MathHelper.IntegerPower(2, first + 1);
             int opposingPow = MathHelper.IntegerPower(2, numberOfQubits - first - 1);
 
-            for (int i = 0; i < firstPow; i++)
-            {
-                for (int j = 0; j < opposingPow; j++)
-                {
-                    int pos1 = i + firstPlusPow * j;
+            for (int i = 0; i < firstPow; i++) {
+                int posj = 0;
+                for (int j = 0; j < opposingPow; j++) {
+                    //int pos1 = i + firstPlusPow * j;
+                    int pos1 = i + posj;
                     int pos2 = pos1 + firstPow;
 
                     ComplexNumber old = amplitudes[pos1];
                     amplitudes[pos1] = amplitudes[pos2];
                     amplitudes[pos2] = old;
 
+                    posj += firstPlusPow;
                 }
             }
         }
 
-        void handleRX(ComplexNumber[] amplitudes, Gate gate, int numberOfQubits)
-        {
+        void handleRX(ComplexNumber[] amplitudes, Gate gate, int numberOfQubits) {
             int first = gate.First;
             int firstPow = MathHelper.IntegerPower(2, first);
             int firstPlusPow = MathHelper.IntegerPower(2, first + 1);
             int opposingPow = MathHelper.IntegerPower(2, numberOfQubits - first - 1);
 
-            double theta = gate.Theta;
-            double cosTheta = Math.Cos(theta / 2);
-            double sinTheta = Math.Sin(theta / 2);
+            double thetaHalf = gate.Theta/2;
+            double cosTheta = Math.Cos(thetaHalf);
+            double sinTheta = Math.Sin(thetaHalf);
 
-            for (int i = 0; i < firstPow; i++)
-            {
-                for (int j = 0; j < opposingPow; j++)
-                {
-                    int pos1 = i + firstPlusPow * j;
+            for (int i = 0; i < firstPow; i++) {
+                int posj = 0;
+                for (int j = 0; j < opposingPow; j++) {
+                    //int pos1 = i + firstPlusPow * j;
+                    int pos1 = i + posj;
                     int pos2 = pos1 + firstPow;
 
                     ComplexNumber p1 = amplitudes[pos1];
@@ -180,20 +171,19 @@ namespace Qiskit
                     amplitudes[pos2].Real = p2.Real * cosTheta + p1.Complex * sinTheta;
                     amplitudes[pos2].Complex = p2.Complex * cosTheta - p1.Real * sinTheta;
 
+                    posj += firstPlusPow;
                 }
             }
         }
 
-        void handleCX(ComplexNumber[] amplitudes, Gate gate, int numberOfQubits)
-        {
+        void handleCX(ComplexNumber[] amplitudes, Gate gate, int numberOfQubits) {
             int first = gate.First;
             int second = gate.Second;
 
             int loop1 = first;
             int loop2 = second;
 
-            if (second < first)
-            {
+            if (second < first) {
                 loop1 = second;
                 loop2 = first;
             }
@@ -209,68 +199,69 @@ namespace Qiskit
             int firstPow = MathHelper.IntegerPower(2, first);
             int secondPow = MathHelper.IntegerPower(2, second);
 
-            for (int i = 0; i < pow1; i++)
-            {
-                for (int j = 0; j < pow2; j++)
-                {
-                    for (int k = 0; k < pow3; k++)
-                    {
-                        int pos1 = i + pow1Plus * j + pow2Plus * k + firstPow;
+            int posi = firstPow;
+
+            for (int i = 0; i < pow1; i++) {
+                int posj = 0;
+                for (int j = 0; j < pow2; j++) {
+                    int posk = 0;
+                    for (int k = 0; k < pow3; k++) {
+                        //int pos1 = firstPow + i + pow1Plus * j + pow2Plus * k ;
+                        int pos1 = posi + posj + posk;
                         int pos2 = pos1 + secondPow;
 
                         ComplexNumber old = amplitudes[pos1];
                         amplitudes[pos1] = amplitudes[pos2];
                         amplitudes[pos2] = old;
 
+                        posk += pow2Plus;
                     }
+                    posj += pow1Plus;
                 }
+                posi++;
             }
         }
 
-        void handleH(ComplexNumber[] amplitudes, Gate gate, int numberOfQubits)
-        {
+        void handleH(ComplexNumber[] amplitudes, Gate gate, int numberOfQubits) {
             int first = gate.First;
             int firstPow = MathHelper.IntegerPower(2, first);
             int firstPlusPow = MathHelper.IntegerPower(2, first + 1);
             int opposingPow = MathHelper.IntegerPower(2, numberOfQubits - first - 1);
 
-            double theta = gate.Theta;
-
-            for (int i = 0; i < firstPow; i++)
-            {
-                for (int j = 0; j < opposingPow; j++)
-                {
-                    int pos1 = i + firstPlusPow * j;
+            for (int i = 0; i < firstPow; i++) {
+                int posj = 0;
+                for (int j = 0; j < opposingPow; j++) {
+                    //int pos1 = i + firstPlusPow * j;
+                    int pos1 = i + posj;
                     int pos2 = pos1 + firstPow;
 
                     ComplexNumber p1 = amplitudes[pos1];
                     ComplexNumber p2 = amplitudes[pos2];
 
-                    amplitudes[pos1].Real = (p1.Real + p2.Real) * MathHelper.Norm2;
-                    amplitudes[pos1].Complex = (p1.Complex + p2.Complex) * MathHelper.Norm2;
-                    amplitudes[pos2].Real = (p1.Real - p2.Real) * MathHelper.Norm2;
-                    amplitudes[pos2].Complex = (p1.Complex - p2.Complex) * MathHelper.Norm2;
+                    amplitudes[pos1].Real = (p1.Real + p2.Real) * MathHelper.Norm2Float;
+                    amplitudes[pos1].Complex = (p1.Complex + p2.Complex) * MathHelper.Norm2Float;
+                    amplitudes[pos2].Real = (p1.Real - p2.Real) * MathHelper.Norm2Float;
+                    amplitudes[pos2].Complex = (p1.Complex - p2.Complex) * MathHelper.Norm2Float;
 
+                    posj += firstPlusPow;
                 }
             }
         }
 
 
 
-        void handleCRX(ComplexNumber[] amplitudes, Gate gate, int numberOfQubits)
-        {
+        void handleCRX(ComplexNumber[] amplitudes, Gate gate, int numberOfQubits) {
             int first = gate.First;
             int second = gate.Second;
 
             int loop1 = first;
             int loop2 = second;
 
-            double theta = gate.Theta;
-            double cosTheta = Math.Cos(theta / 2);
-            double sinTheta = Math.Sin(theta / 2);
+            double thetaHalf = gate.Theta/2;
+            double cosTheta = Math.Cos(thetaHalf);
+            double sinTheta = Math.Sin(thetaHalf);
 
-            if (second < first)
-            {
+            if (second < first) {
                 loop1 = second;
                 loop2 = first;
             }
@@ -286,13 +277,15 @@ namespace Qiskit
             int firstPow = MathHelper.IntegerPower(2, first);
             int secondPow = MathHelper.IntegerPower(2, second);
 
-            for (int i = 0; i < pow1; i++)
-            {
-                for (int j = 0; j < pow2; j++)
-                {
-                    for (int k = 0; k < pow3; k++)
-                    {
-                        int pos1 = i + pow1Plus * j + pow2Plus * k + firstPow;
+            int posi = firstPow;
+
+            for (int i = 0; i < pow1; i++) {
+                int posj = 0;
+                for (int j = 0; j < pow2; j++) {
+                    int posk = 0;
+                    for (int k = 0; k < pow3; k++) {
+                        //int pos1 = i + pow1Plus * j + pow2Plus * k + firstPow;
+                        int pos1 = posi + posj + posk;
                         int pos2 = pos1 + secondPow;
 
                         ComplexNumber p1 = amplitudes[pos1];
@@ -303,14 +296,15 @@ namespace Qiskit
                         amplitudes[pos2].Real = p2.Real * cosTheta + p1.Complex * sinTheta;
                         amplitudes[pos2].Complex = p2.Complex * cosTheta - p1.Real * sinTheta;
 
-
+                        posk += pow2Plus;
                     }
+                    posj += pow1Plus;
                 }
+                posi++;
             }
         }
 
-        void handleM(ComplexNumber[] amplitudes, Gate gate, int numberOfQubits)
-        {
+        void handleM(ComplexNumber[] amplitudes, Gate gate, int numberOfQubits) {
             //Todo
         }
 

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-using Quantumimage;
+using QuantumImage;
 using UnityEngine.UI;
 
 public class QuantumBlurTest : MonoBehaviour
@@ -52,19 +52,18 @@ public class QuantumBlurTest : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
-    {   
-        /*
+    {
         Application.targetFrameRate = 60;
 
-         
+        /*
         creator = new QuantumImageCreator();
 
         GC.Collect();
         Invoke("DoCreatorTest", 0.5f);
         
         */
-       // Invoke("doFastTest", 1.25f);
-      //  Invoke("doSlowTest", 2.5f);
+        //Invoke("doFastTest", 1.25f);
+        //Invoke("doSlowTest", 2.5f);
 
         //Invoke("DirectTest", 0.5f);
 

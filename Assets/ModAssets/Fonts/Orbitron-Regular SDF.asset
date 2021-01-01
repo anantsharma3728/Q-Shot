@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hashCode: -1440140617
   material: {fileID: 21623678745554260}
-  materialHashCode: 1269651036
+  materialHashCode: -1243899593
   m_Version: 1.1.0
   m_SourceFontFileGUID: b15471d1f905d4be4a0b18923063b3b8
   m_SourceFontFile_EditorRef: {fileID: 0}
@@ -28,7 +28,7 @@ MonoBehaviour:
     m_LineHeight: 42
     m_AscentLine: 31.5
     m_CapLine: 30.249998
-    m_MeanLine: 0
+    m_MeanLine: 24.374998
     m_Baseline: 0
     m_DescentLine: -10.5
     m_SuperscriptOffset: 31.5
@@ -3105,6 +3105,7 @@ MonoBehaviour:
   m_AtlasTextures:
   - {fileID: 28974264394003402}
   m_AtlasTextureIndex: 0
+  m_IsMultiAtlasTexturesEnabled: 0
   m_UsedGlyphRects: []
   m_FreeGlyphRects: []
   m_fontInfo:
@@ -4745,7 +4746,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Orbitron-Regular SDF Material
   m_Shader: {fileID: 4800000, guid: 68e6db2ebdc24f95958faec2be5558d6, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: BEVEL_ON UNDERLAY_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -4772,7 +4773,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OutlineTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 6948862991028559330, guid: b414ce58767a11b4b9575be76aa1d7fc,
+          type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -4808,7 +4810,7 @@ Material:
     - _ScaleRatioC: 0.6770833
     - _ScaleX: 1
     - _ScaleY: 1
-    - _ShaderFlags: 0
+    - _ShaderFlags: 1
     - _SpecularPower: 2
     - _Stencil: 0
     - _StencilComp: 8
@@ -4855,6 +4857,8 @@ Texture2D:
   m_TextureFormat: 1
   m_MipCount: 1
   m_IsReadable: 0
+  m_IgnoreMasterTextureLimit: 0
+  m_IsPreProcessed: 0
   m_StreamingMipmaps: 0
   m_StreamingMipmapsPriority: 0
   m_AlphaIsTransparency: 0

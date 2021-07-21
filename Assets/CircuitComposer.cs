@@ -33,6 +33,10 @@ public class CircuitComposer : MonoBehaviour
         {
              ComposerRoot.SetActive(true);
         }
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+             ComposerRoot.SetActive(false);
+        }
 
     }
 }
